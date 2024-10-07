@@ -6,6 +6,7 @@ from aws_cdk import (
 )
 
 import aws_cdk as cdk
+import aws_cdk.aws_s3_deployment as s3deployment
 
 from constructs import Construct
 
@@ -19,7 +20,16 @@ class HelloCdkStack(Stack):
                             "MyFirstBucket", 
                             versioned=True,
                             removal_policy=cdk.RemovalPolicy.DESTROY,
-                            auto_delete_objects=True)
+                            auto_delete_objects=True,
+                            block_public_access=s3.BlockPublicAccess.BLOCK_ACLS,
+                            access_control=s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
+                            public_read_access=True,
+                            website_index_document="index.html")
+
+        deployment = s3deployment.BucketDeployment(self, "DeployWebsite",
+                            sources=[s3deployment.Source.asset('./hello_cdk/static-website.zip')],
+                            destination_bucket=bucket)
+
         # example resource
         # queue = sqs.Queue(
         #     self, "HelloCdkQueue",
